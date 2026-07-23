@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A privacy-safe workforce management portfolio demo.">
+    <title>Workforce Management Demo</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand-block">
+            <span class="brand-mark" aria-hidden="true">WM</span>
+            <div>
+                <p class="eyebrow">Portfolio application</p>
+                <h1>Workforce Management</h1>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <span id="dataStatus" class="data-status">Demo data</span>
+            <button id="refreshButton" class="button secondary" type="button">Refresh</button>
+            <button id="addButton" class="button primary" type="button">Add person</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="overview-band" aria-labelledby="overviewTitle">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow accent">Team snapshot</p>
+                    <h2 id="overviewTitle">Operational overview</h2>
+                </div>
+                <p id="asOfDate" class="as-of"></p>
+            </div>
+
+            <div id="metrics" class="metrics" aria-live="polite"></div>
+
+            <div class="overview-grid">
+                <div class="distribution-panel">
+                    <div class="panel-heading">
+                        <h3>Department distribution</h3>
+                        <span>Current roster</span>
+                    </div>
+                    <div id="departmentChart" class="bar-chart"></div>
+                </div>
+                <div class="schedule-panel">
+                    <div class="panel-heading">
+                        <h3>Upcoming time off</h3>
+                        <span>Next 30 days</span>
+                    </div>
+                    <div id="upcomingList" class="schedule-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="directory-band" aria-labelledby="directoryTitle">
+            <div class="directory-toolbar">
+                <div>
+                    <p class="eyebrow accent">Directory</p>
+                    <h2 id="directoryTitle">People and capacity</h2>
+                </div>
+                <div class="filters" role="search">
+                    <label class="search-field">
+                        <span class="sr-only">Search people</span>
+                        <input id="searchInput" type="search" placeholder="Search name, role or email">
+                    </label>
+                    <label>
+                        <span class="sr-only">Filter by department</span>
+                        <select id="departmentFilter">
+                            <option value="">All departments</option>
+                            <option>Product</option>
+                            <option>Engineering</option>
+                            <option>Operations</option>
+                            <option>Customer Success</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span class="sr-only">Filter by status</span>
+                        <select id="statusFilter">
+                            <option value="">All statuses</option>
+                            <option>Active</option>
+                            <option>On leave</option>
+                            <option>Inactive</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="directory-layout">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Person</th>
+                                <th>Department</th>
+                                <th>Work mode</th>
+                                <th>Capacity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="peopleTable"></tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state" hidden>
+                        <strong>No people found</strong>
+                        <span>Adjust the filters or add a new demo record.</span>
+                    </div>
+                </div>
+
+                <aside id="personPanel" class="person-panel" aria-live="polite">
+                    <div class="panel-placeholder">
+                        <span class="placeholder-mark">WM</span>
+                        <h3>Select a person</h3>
+                        <p>Choose a row to inspect responsibilities, availability and time off.</p>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <dialog id="personDialog">
+        <form id="personForm" method="dialog">
+            <div class="dialog-header">
+                <div>
+                    <p class="eyebrow accent">Directory record</p>
+                    <h2 id="dialogTitle">Add person</h2>
+                </div>
+                <button id="closeDialogButton" class="icon-button" type="button" aria-label="Close dialog">X</button>
+            </div>
+
+            <input name="id" type="hidden">
+            <div class="form-scroll">
+                <fieldset>
+                    <legend>Profile</legend>
+                    <div class="form-grid two-columns">
+                        <label>First name<input name="first_name" maxlength="80" required></label>
+                        <label>Last name<input name="last_name" maxlength="80" required></label>
+                        <label class="span-two">Email<input name="email" type="email" maxlength="160" placeholder="name@example.com" required></label>
+                        <label>Job title<input name="job_title" maxlength="120" required></label>
+                        <label>Department
+                            <select name="department" required>
+                                <option>Product</option>
+                                <option>Engineering</option>
+                                <option>Operations</option>
+                                <option>Customer Success</option>
+                            </select>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Work arrangement</legend>
+                    <div class="form-grid three-columns">
+                        <label>Employment type
+                            <select name="employment_type" required>
+                                <option>Full-time</option>
+                                <option>Part-time</option>
+                                <option>Contract</option>
+                            </select>
+                        </label>
+                        <label>Work mode
+                            <select name="work_mode" required>
+                                <option>On-site</option>
+                                <option>Hybrid</option>
+                                <option>Remote</option>
+                            </select>
+                        </label>
+                        <label>Status
+                            <select name="status" required>
+                                <option>Active</option>
+                                <option>On leave</option>
+                                <option>Inactive</option>
+                            </select>
+                        </label>
+                        <label>Location<input name="location" maxlength="100" value="Central Hub" required></label>
+                        <label>Start date<input name="start_date" type="date" required></label>
+                        <label>Weekly capacity<input name="weekly_capacity" type="number" min="1" max="80" value="40" required></label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Capabilities and notes</legend>
+                    <div class="form-grid">
+                        <label>Skills<input name="skills" maxlength="500" placeholder="Planning, Reporting, Facilitation"></label>
+                        <label>Notes<textarea name="notes" rows="3" maxlength="1200"></textarea></label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <div class="fieldset-heading">
+                        <legend>Time off</legend>
+                        <button id="addTimeOffButton" class="button tertiary" type="button">Add period</button>
+                    </div>
+                    <div id="timeOffEditor" class="time-off-editor"></div>
+                </fieldset>
+            </div>
+
+            <div class="dialog-actions">
+                <button id="cancelButton" class="button secondary" type="button">Cancel</button>
+                <button class="button primary" type="submit">Save record</button>
+            </div>
+        </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script src="/app.js" defer></script>
+</body>
+</html>
